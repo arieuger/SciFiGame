@@ -30,7 +30,7 @@ public class PlayerMovement : MonoBehaviour {
     void Update() {
         isRunning = Input.GetKey(KeyCode.LeftShift);
         horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
-        Debug.Log(isRunning + " - " + horizontalMovement);
+        
         animator.SetFloat("horizontalMovement", Mathf.Abs(horizontalMovement));
         animator.SetBool("isRunning", isRunning && horizontalMovement != 0);
 

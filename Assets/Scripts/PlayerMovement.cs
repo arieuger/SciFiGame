@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Update() {
-        isRunning = Input.GetKey(KeyCode.LeftShift);
+        isRunning = Input.GetKey(KeyCode.LeftShift) && isGrounded;
         horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
         if (Input.GetButtonDown("Jump")) jump = true;
 

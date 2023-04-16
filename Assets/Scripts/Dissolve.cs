@@ -1,17 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Dissolve : MonoBehaviour {
 
     private Material material;
+    private LocalKeyword shouldShowOutlineKeyword;
+    private SpriteRenderer sr;
+
     private bool isDissolving = false;
     private float fade = 1f;
     private bool isInvisible = false;
     private bool shouldShowOutline = false;
 
     void Start() {
-        material = GetComponent<SpriteRenderer>().material;
+        sr = GetComponent<SpriteRenderer>();
+        material = sr.material;
+        shouldShowOutlineKeyword = new LocalKeyword(material.shader, "_SHOULDSHOWOUTLINE");
+        StartCoroutine(LerpAlpha());
     }
 
     void Update() {
@@ -22,9 +29,9 @@ public class Dissolve : MonoBehaviour {
         }
 
         if (!isDissolving) return;
-
+        
+        // TODO: Fade inicial/final
         if (!isInvisible) {
-            // TODO: Corrutina para slide
             fade -= Time.deltaTime;
             if (fade <= 0f) {
                 shouldShowOutline = true;
@@ -42,7 +49,26 @@ public class Dissolve : MonoBehaviour {
         }
 
         material.SetFloat("_DissolveAmount", fade);
-        material.SetInteger("_ShouldShowOutline", shouldShowOutline ? 1 : 0);
+        material.SetKeyword(shouldShowOutlineKeyword, shouldShowOutline);
         
     }
+
+    private IEnumerator LerpAlpha() {
+        Color color = sr.color;
+        float duration = 2f;
+        float minAlpha = 0.2f;
+
+        while (true) {
+            if (shouldShowOutline) {
+                float lerp = Mathf.PingPong(Time.time, duration) / duration;
+                color.a = Mathf.Lerp(minAlpha, 1f, Mathf.SmoothStep(minAlpha, 1f, lerp));
+            } else {
+                color.a = 1f;
+            }
+
+            sr.color = color;
+            yield return null;
+        }        
+    }
+    
 }

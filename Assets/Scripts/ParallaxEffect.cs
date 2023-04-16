@@ -20,7 +20,6 @@ public class ParallaxEffect : MonoBehaviour {
     void LateUpdate() {
         float deltaX = (cameraTransform.position.x - previousCameraPosition.x) * parallaxMultiplier;    
         float moveAmount = cameraTransform.position.x * (1 - parallaxMultiplier);
-        Debug.Log(spriteWidth + " - " + startPosition + " - " + moveAmount);
         transform.Translate(new Vector3(deltaX, 0, 0));
         previousCameraPosition = cameraTransform.position;
 

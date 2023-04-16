@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class PlayerMovement : MonoBehaviour {
 
@@ -12,6 +13,7 @@ public class PlayerMovement : MonoBehaviour {
     private bool isRunning;
     private bool isGrounded;
     private bool jump = false;
+    private CinemachineVirtualCamera vCam;
 
     [SerializeField] private float movementSpeed;
     [SerializeField] private bool smoothActivated = false;
@@ -25,6 +27,7 @@ public class PlayerMovement : MonoBehaviour {
     void Start() {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        vCam = GameObject.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>();
     }
 
     void Update() {
@@ -60,6 +63,7 @@ public class PlayerMovement : MonoBehaviour {
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
+        vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.x *= -1f;
     }
 
     private void UpdateAnimations() {
@@ -73,4 +77,5 @@ public class PlayerMovement : MonoBehaviour {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(groundController.position, dimensionBox);
     }
+
 }

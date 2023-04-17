@@ -32,13 +32,12 @@ public class Dissolve : MonoBehaviour {
 
         if (!isDissolving) return;
         
-        // TODO: Fade inicial/final
         if (!isInvisible) {
             fade -= Time.deltaTime;
             pMov.IsRunning = false;
             if (fade <= 0f) {
-                shouldShowOutline = true;
                 fade = 0f;
+                shouldShowOutline = true;
                 isDissolving = false;
             }
 
@@ -59,14 +58,17 @@ public class Dissolve : MonoBehaviour {
 
     private IEnumerator LerpAlpha() {
         Color color = sr.color;
-        float duration = 2f;
-        float minAlpha = 0.2f;
+        float duration = 1.5f;
+        float lerpTimer = 0f;
+        float minAlpha = 0.1f;
 
         while (true) {
             if (shouldShowOutline) {
-                float lerp = Mathf.PingPong(Time.time, duration) / duration;
+                lerpTimer += Time.deltaTime;
+                float lerp = Mathf.PingPong(lerpTimer, duration) / duration;
                 color.a = Mathf.Lerp(minAlpha, 1f, Mathf.SmoothStep(minAlpha, 1f, lerp));
             } else {
+                lerpTimer = 0;
                 color.a = 1f;
             }
 

@@ -8,6 +8,7 @@ public class Dissolve : MonoBehaviour {
     private Material material;
     private LocalKeyword shouldShowOutlineKeyword;
     private SpriteRenderer sr;
+    private PlayerMovement pMov;
 
     private bool isDissolving = false;
     private float fade = 1f;
@@ -18,6 +19,7 @@ public class Dissolve : MonoBehaviour {
         sr = GetComponent<SpriteRenderer>();
         material = sr.material;
         shouldShowOutlineKeyword = new LocalKeyword(material.shader, "_SHOULDSHOWOUTLINE");
+        pMov = GetComponent<PlayerMovement>();
         StartCoroutine(LerpAlpha());
     }
 
@@ -33,6 +35,7 @@ public class Dissolve : MonoBehaviour {
         // TODO: Fade inicial/final
         if (!isInvisible) {
             fade -= Time.deltaTime;
+            pMov.IsRunning = false;
             if (fade <= 0f) {
                 shouldShowOutline = true;
                 fade = 0f;
@@ -42,6 +45,7 @@ public class Dissolve : MonoBehaviour {
         } else {
             shouldShowOutline = false;
             fade += Time.deltaTime;
+            pMov.IsRunning = true;
             if (fade >= 1f) {
                 fade = 1f;
                 isDissolving = false;

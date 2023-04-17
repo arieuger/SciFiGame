@@ -10,7 +10,6 @@ public class PlayerMovement : MonoBehaviour {
     private float horizontalMovement;
     private Vector3 velocity = Vector3.zero;
     private bool lookingRight = true;
-    private bool isRunning;
     private bool isGrounded;
     private bool jump = false;
     private CinemachineVirtualCamera vCam;
@@ -24,6 +23,12 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] private Transform groundController;
     [SerializeField] private Vector3 dimensionBox;
 
+    private bool isRunning = true;
+    public bool IsRunning { 
+        get { return isRunning; } 
+        set { isRunning = value; } 
+    } 
+
     void Start() {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -31,7 +36,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Update() {
-        isRunning = Input.GetKey(KeyCode.LeftShift) && isGrounded;
+        // isRunning = Input.GetKey(KeyCode.LeftShift) && isGrounded;
         horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
         if (Input.GetButtonDown("Jump")) jump = true;
 

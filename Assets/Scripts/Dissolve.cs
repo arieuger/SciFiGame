@@ -57,12 +57,13 @@ public class Dissolve : MonoBehaviour {
     }
 
     private IEnumerator LerpAlpha() {
-        Color color = sr.color;
+        
         float duration = 1.5f;
         float lerpTimer = 0f;
         float minAlpha = 0.1f;
 
         while (true) {
+            Color color = sr.color;
             if (shouldShowOutline) {
                 lerpTimer += Time.deltaTime;
                 float lerp = Mathf.PingPong(lerpTimer, duration) / duration;

@@ -5,40 +5,54 @@ using Cinemachine;
 
 public class PlayerMovement : MonoBehaviour {
 
-    private Rigidbody2D rb;
-    private Animator animator;
-    private float horizontalMovement;
-    private Vector3 velocity = Vector3.zero;
-    private bool lookingRight = true;
-    private bool isGrounded;
-    private bool jump = false;
-    private CinemachineVirtualCamera vCam;
-
+ 
+    // Movemento e velocidade
     [SerializeField] private float movementSpeed;
     [SerializeField] private bool smoothActivated = false;
     [Range(0,0.3f)][SerializeField] private float movementSmooth;
-
-    [SerializeField] private float jumpForce;
-    [SerializeField] private LayerMask groundLayers;
-    [SerializeField] private Transform groundController;
-    [SerializeField] private Vector3 dimensionBox;
-
+    private Rigidbody2D rb;
+    private float horizontalMovement;
+    private Vector3 velocity = Vector3.zero;
+    private bool lookingRight = true;
     private bool isRunning = true;
     public bool IsRunning { 
         get { return isRunning; } 
         set { isRunning = value; } 
     } 
 
+
+    // Salto e suelo
+    [SerializeField] private float jumpForce;
+    [SerializeField] private LayerMask groundLayers;
+    [SerializeField] private Transform groundController;
+    [SerializeField] private Vector3 dimensionBox;
+    private bool isGrounded;
+    private bool jump = false;
+
+
+    // Partículas
+    [SerializeField] private ParticleSystem footstepsEffect;
+    private ParticleSystem.EmissionModule footEmission;
+    private ParticleSystem.MinMaxCurve initialFootEmissionROT;
+
+
+    // Cámara e animacións
+    private CinemachineVirtualCamera vCam;
+    private Animator animator;
+
+
     void Start() {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         vCam = GameObject.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>();
+        footEmission = footstepsEffect.emission;
+        initialFootEmissionROT = footEmission.rateOverTime;
     }
 
     void Update() {
-        // isRunning = Input.GetKey(KeyCode.LeftShift) && isGrounded;
         horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
         if (Input.GetButtonDown("Jump")) jump = true;
+        // if (Input.GetButtonUp("Jump") && rb.velocity.y > 0) rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
 
         UpdateAnimations();
     }
@@ -54,6 +68,13 @@ public class PlayerMovement : MonoBehaviour {
 
         if (moving > 0 && !lookingRight) Turn();
         else if (moving < 0 && lookingRight) Turn();
+
+        // efectos de partículas
+        if (moving != 0 && isGrounded && isRunning) {
+            footEmission.rateOverTime = initialFootEmissionROT;
+        } else {
+            footEmission.rateOverTime = 0f;
+        }
 
         if (isGrounded && jump) {
             isGrounded = false;

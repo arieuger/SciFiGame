@@ -5,6 +5,8 @@ using UnityEngine.Rendering;
 
 public class Dissolve : MonoBehaviour {
 
+    [SerializeField] private GameObject invisibilityBar;
+
     private Material material;
     private LocalKeyword shouldShowOutlineKeyword;
     private SpriteRenderer sr;
@@ -39,9 +41,11 @@ public class Dissolve : MonoBehaviour {
                 fade = 0f;
                 shouldShowOutline = true;
                 isDissolving = false;
+                invisibilityBar.SetActive(true);
             }
 
         } else {
+            invisibilityBar.SetActive(false);
             shouldShowOutline = false;
             fade += Time.deltaTime;
             pMov.IsRunning = true;

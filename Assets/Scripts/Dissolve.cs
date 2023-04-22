@@ -21,7 +21,6 @@ public class Dissolve : MonoBehaviour {
         sr = GetComponent<SpriteRenderer>();
         material = sr.material;
         shouldShowOutlineKeyword = new LocalKeyword(material.shader, "_SHOULDSHOWOUTLINE");
-        pMov = GetComponent<PlayerMovement>();
         StartCoroutine(LerpAlpha());
     }
 
@@ -36,7 +35,7 @@ public class Dissolve : MonoBehaviour {
         
         if (!isInvisible) {
             fade -= Time.deltaTime;
-            pMov.IsRunning = false;
+            PlayerMovement.Instance.IsRunning = false;
             if (fade <= 0f) {
                 fade = 0f;
                 shouldShowOutline = true;
@@ -48,7 +47,7 @@ public class Dissolve : MonoBehaviour {
             invisibilityBar.SetActive(false);
             shouldShowOutline = false;
             fade += Time.deltaTime;
-            pMov.IsRunning = true;
+            PlayerMovement.Instance.IsRunning = true;
             if (fade >= 1f) {
                 fade = 1f;
                 isDissolving = false;

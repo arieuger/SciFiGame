@@ -40,6 +40,12 @@ public class PlayerMovement : MonoBehaviour {
     private CinemachineVirtualCamera vCam;
     private Animator animator;
 
+    // Singleton
+    public static PlayerMovement Instance { get; private set; }
+    private void Awake() {
+        if (Instance != null && Instance != this) Destroy(this);
+        else Instance = this;
+    }
 
     void Start() {
         rb = GetComponent<Rigidbody2D>();

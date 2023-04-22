@@ -11,14 +11,10 @@ public class InvisibilityBar : MonoBehaviour {
     private float timeRemaining;
     private bool shouldBeCounting = true;
 
-    void Start() {
-        slider = GetComponent<Slider>();
-        timeRemaining = maxTime;
-    }
-
     void Update() {
         if (shouldBeCounting && timeRemaining >= 0) {
             timeRemaining -= Time.deltaTime;
+            
             slider.value = timeRemaining / maxTime;
         } else if (timeRemaining <= 0) {
             gameObject.SetActive(false);
@@ -26,11 +22,10 @@ public class InvisibilityBar : MonoBehaviour {
     }
 
     public void OnEnable() {
-        if (slider != null) {
-            slider.value = 1f;
-            timeRemaining = maxTime;
-            shouldBeCounting = true;
-        }
+        if (slider == null) slider = GetComponent<Slider>();
+        slider.value = 1f;
+        timeRemaining = maxTime;
+        shouldBeCounting = true;
     }
 
     public void OnDisable() {

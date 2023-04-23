@@ -12,6 +12,10 @@ public class PlayerMovement : MonoBehaviour {
     [Range(0,0.3f)][SerializeField] private float movementSmooth;
     private Rigidbody2D rb;
     private float horizontalMovement;
+    public float HorizontalMovement {
+        get { return horizontalMovement; }
+        set { horizontalMovement = value; }
+    }
     private Vector3 velocity = Vector3.zero;
     private bool lookingRight = true;
     private bool isRunning = true;

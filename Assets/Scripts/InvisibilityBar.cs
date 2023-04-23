@@ -14,6 +14,7 @@ public class InvisibilityBar : MonoBehaviour {
     void Update() {
         if (shouldBeCounting && timeRemaining >= 0) {
             timeRemaining -= Time.deltaTime;
+            if (PlayerMovement.Instance.HorizontalMovement != 0) AccelerateOnWalk();
             
             slider.value = timeRemaining / maxTime;
         } else if (timeRemaining <= 0) {
@@ -30,6 +31,10 @@ public class InvisibilityBar : MonoBehaviour {
 
     public void OnDisable() {
         shouldBeCounting = false;
+    }
+
+    private void AccelerateOnWalk() {
+        timeRemaining -= Time.deltaTime / 1.5f;
     }
     
 }

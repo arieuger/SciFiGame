@@ -12,9 +12,14 @@ public class InvisibilityBar : MonoBehaviour {
     private bool shouldBeCounting = true;
     private Image fillImage;
     private bool isPlayerMoving;
+    [SerializeField] private Color originalColor/* = new Color32(46,93,82,255)*/;
+    private Color alertColor = new Color32(226,109,86,255);
 
     void Update() {
         isPlayerMoving = PlayerMovement.Instance.HorizontalMovement != 0;
+        
+        if (!isPlayerMoving && fillImage.color != originalColor) fillImage.color = originalColor;
+
         if (shouldBeCounting && timeRemaining >= 0) {
             timeRemaining -= Time.deltaTime;
             if (isPlayerMoving) AccelerateOnWalk();
@@ -43,26 +48,20 @@ public class InvisibilityBar : MonoBehaviour {
     }
 
     private IEnumerator LerpColor() {
-        
-        Color originalColor = fillImage.color;
-        Color alertColor = new Color32(226,109,86,255);
+
         float duration = 1f;
         float lerpTimer = 0f;
 
         while (true) {
-            if (isPlayerMoving) {
-                lerpTimer += Time.deltaTime;
-                float lerp = Mathf.PingPong(lerpTimer, duration) / duration;
-                fillImage.color = Color.Lerp(originalColor, alertColor, lerp);
-            } else {
-                fillImage.color = originalColor;
-                yield break;
-            }
             
+            if (!isPlayerMoving) yield break;
+            
+            lerpTimer += Time.deltaTime;
+            float lerp = Mathf.PingPong(lerpTimer, duration) / duration;
+            fillImage.color = Color.Lerp(originalColor, alertColor, lerp);
             yield return null;
-        }
-
         
+        }
     }
     
 }

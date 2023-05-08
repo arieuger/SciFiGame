@@ -6,17 +6,20 @@ using UnityEngine.UI;
 public class InvisibilityBar : MonoBehaviour {
 
     [SerializeField] private float maxTime = 15f;
+    private float jumpTime = 1.5f;
 
     private Slider slider;
     private float timeRemaining;
     private bool shouldBeCounting = true;
     private Image fillImage;
     private bool isPlayerMoving;
+    private bool isPlayerJumping;
     [SerializeField] private Color originalColor/* = new Color32(46,93,82,255)*/;
     private Color alertColor = new Color32(226,109,86,255);
 
     void Update() {
         isPlayerMoving = PlayerMovement.Instance.HorizontalMovement != 0;
+        isPlayerJumping = PlayerMovement.Instance.Jump && PlayerMovement.Instance.IsGrounded;
         
         if (!isPlayerMoving && fillImage.color != originalColor) fillImage.color = originalColor;
 
@@ -26,6 +29,12 @@ public class InvisibilityBar : MonoBehaviour {
             slider.value = timeRemaining / maxTime;
         } else if (timeRemaining <= 0) {
             gameObject.SetActive(false);
+        }
+    }
+
+    private void FixedUpdate() {
+        if (isPlayerJumping) {
+            timeRemaining -= jumpTime;
         }
     }
 

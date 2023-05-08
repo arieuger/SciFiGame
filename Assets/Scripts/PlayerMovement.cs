@@ -31,7 +31,15 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] private Transform groundController;
     [SerializeField] private Vector3 dimensionBox;
     private bool isGrounded;
+    public bool IsGrounded {
+        get { return isGrounded; }
+        set { isGrounded = value; }
+    }
     private bool jump = false;
+    public bool Jump {
+        get { return jump; }
+        set { jump = value; }
+    }
 
 
     // Partículas

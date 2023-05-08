@@ -44,6 +44,7 @@ public class PlayerMovement : MonoBehaviour {
 
     // Partículas
     [SerializeField] private ParticleSystem footstepsEffect;
+    [SerializeField] private ParticleSystem jumpEffect;
     private ParticleSystem.EmissionModule footEmission;
     private ParticleSystem.MinMaxCurve initialFootEmissionROT;
 
@@ -97,6 +98,8 @@ public class PlayerMovement : MonoBehaviour {
         if (isGrounded && jump) {
             isGrounded = false;
             rb.AddForce(new Vector2(0f, jumpForce));
+            // jumpEffect.transform.position = new Vector3(transform.position.x, transform.position.y - 0.487f, transform.position.z);
+            jumpEffect.Play();
         }
 
         jump = false;

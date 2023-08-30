@@ -1,11 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Cinemachine;
+using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour {
-
- 
+public class PlayerMovement : MonoBehaviour
+{
+    
+    [Header ("Movement and velocity")]
     // Movemento e velocidade
     [SerializeField] private float movementSpeed;
     [SerializeField] private bool smoothActivated = false;
@@ -23,13 +25,16 @@ public class PlayerMovement : MonoBehaviour {
         get { return isRunning; } 
         set { isRunning = value; } 
     } 
-
-
+    
+    [Header ("Jump and groundcheck")]
     // Salto e suelo
     [SerializeField] private float jumpForce;
     [SerializeField] private LayerMask groundLayers;
     [SerializeField] private Transform groundController;
     [SerializeField] private Vector3 dimensionBox;
+    [SerializeField] private float fallGravityScale;
+    
+    private float defaultGravityScale;
     private bool isGrounded;
     public bool IsGrounded {
         get { return isGrounded; }
@@ -41,13 +46,12 @@ public class PlayerMovement : MonoBehaviour {
         set { jump = value; }
     }
 
-
+    [Header ("Particle Effects")]
     // Partículas
     [SerializeField] private ParticleSystem footstepsEffect;
     [SerializeField] private ParticleSystem jumpEffect;
     private ParticleSystem.EmissionModule footEmission;
-    private ParticleSystem.MinMaxCurve initialFootEmissionROT;
-
+    private ParticleSystem.MinMaxCurve initialFootEmissionRot;
 
     // Cámara e animacións
     private CinemachineVirtualCamera vCam;
@@ -59,58 +63,31 @@ public class PlayerMovement : MonoBehaviour {
         if (Instance != null && Instance != this) Destroy(this);
         else Instance = this;
     }
-
-    void Start() {
+    
+    void Start()
+    {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         vCam = GameObject.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>();
         footEmission = footstepsEffect.emission;
-        initialFootEmissionROT = footEmission.rateOverTime;
+        initialFootEmissionRot = footEmission.rateOverTime;
+        defaultGravityScale = rb.gravityScale;
     }
 
-    void Update() {
+    // Update is called once per frame
+    void Update()
+    {
         horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
         if (Input.GetButtonDown("Jump")) jump = true;
-        // if (Input.GetButtonUp("Jump") && rb.velocity.y > 0) rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-
         UpdateAnimations();
     }
 
-    private void FixedUpdate() {
+    private void FixedUpdate()
+    {
+        // TODO: Health
         isGrounded = Physics2D.OverlapBox(groundController.position, dimensionBox, 0f, groundLayers);
-        Move(horizontalMovement * Time.fixedDeltaTime);     
-    }
-
-    private void Move(float moving) {
-        Vector3 targetVelocity = new Vector2(moving, rb.velocity.y);
-        rb.velocity = smoothActivated ? Vector3.SmoothDamp(rb.velocity, targetVelocity, ref velocity, movementSmooth) : targetVelocity;
-
-        if (moving > 0 && !lookingRight) Turn();
-        else if (moving < 0 && lookingRight) Turn();
-
-        // efectos de partículas
-        if (moving != 0 && isGrounded && isRunning) {
-            footEmission.rateOverTime = initialFootEmissionROT;
-        } else {
-            footEmission.rateOverTime = 0f;
-        }
-
-        if (isGrounded && jump) {
-            isGrounded = false;
-            rb.AddForce(new Vector2(0f, jumpForce));
-            // jumpEffect.transform.position = new Vector3(transform.position.x, transform.position.y - 0.487f, transform.position.z);
-            jumpEffect.Play();
-        }
-
-        jump = false;
-    }
-
-    private void Turn() {
-        lookingRight = !lookingRight;
-        Vector3 scale = transform.localScale;
-        scale.x *= -1;
-        transform.localScale = scale;
-        vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.x *= -1f;
+        Move(horizontalMovement * Time.fixedDeltaTime);
+        CheckGravity();
     }
 
     private void UpdateAnimations() {
@@ -119,10 +96,52 @@ public class PlayerMovement : MonoBehaviour {
         animator.SetBool("isRunning", isRunning && horizontalMovement != 0);
         animator.SetBool("isGrounded", isGrounded);
     }
+    
+    private void Move(float moving) {
+        Vector3 targetVelocity = new Vector2(moving, rb.velocity.y);
+        rb.velocity = smoothActivated ? Vector3.SmoothDamp(rb.velocity, targetVelocity, ref velocity, movementSmooth) : targetVelocity;
 
+
+        if (moving > 0 && !lookingRight) Turn();
+        else if (moving < 0 && lookingRight) Turn();
+
+        // efectos de partículas
+        if (moving != 0 && isGrounded) {
+            footEmission.rateOverTime = initialFootEmissionRot;
+        } else {
+            footEmission.rateOverTime = 0f;
+        }
+
+        if (jump && isGrounded) {
+            isGrounded = false;
+            rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+            jumpEffect.Play();
+        }
+
+        jump = false;
+    }
+    
+    public void Turn() {
+        lookingRight = !lookingRight;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+        vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.x *= -1f;
+    }
+    
+    private void CheckGravity() {
+        if (rb.velocity.y < -0.1f) {
+            rb.gravityScale = fallGravityScale;
+            if (vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y > 0f)
+                vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y *= -1f;
+        } else {
+            rb.gravityScale = defaultGravityScale;
+            vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y = Mathf.Abs(vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y);
+        }
+    }
+    
     private void OnDrawGizmos() {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(groundController.position, dimensionBox);
     }
-
 }

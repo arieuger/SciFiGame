@@ -33,8 +33,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform groundController;
     [SerializeField] private Vector3 dimensionBox;
     [SerializeField] private float fallGravityScale;
-    
+    [SerializeField] private float coyoteTime;
+
     private float defaultGravityScale;
+    private float coyoteTimeCounter;
     private bool isGrounded;
     public bool IsGrounded {
         get { return isGrounded; }
@@ -79,6 +81,14 @@ public class PlayerMovement : MonoBehaviour
     {
         horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
         if (Input.GetButtonDown("Jump")) jump = true;
+        if (isGrounded)
+        {
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
         UpdateAnimations();
     }
 
@@ -112,9 +122,10 @@ public class PlayerMovement : MonoBehaviour
             footEmission.rateOverTime = 0f;
         }
 
-        if (jump && isGrounded) {
+        if (jump && (isGrounded || coyoteTimeCounter > 0f)) {
             isGrounded = false;
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+            coyoteTimeCounter = 0f;
             jumpEffect.Play();
         }
 

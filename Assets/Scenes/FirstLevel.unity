@@ -6030,7 +6030,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 587532327}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78a1c30f829b8f6919ae180f2c18694b, type: 3}
   m_Name: 
@@ -6048,7 +6048,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf847ee4e27046dabb0618a5f4318107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 150
+  movementSpeed: 220
   smoothActivated: 0
   movementSmooth: 0
   jumpForce: 9.5
@@ -6058,6 +6058,7 @@ MonoBehaviour:
   groundController: {fileID: 1685674847}
   dimensionBox: {x: 0.6, y: 0.15, z: 0}
   fallGravityScale: 3
+  coyoteTime: 0.075
   footstepsEffect: {fileID: 266232343}
   jumpEffect: {fileID: 1806671225}
 --- !u!1 &607647103

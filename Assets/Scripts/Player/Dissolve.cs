@@ -11,7 +11,6 @@ public class Dissolve : MonoBehaviour {
     private LocalKeyword shouldShowOutlineKeyword;
     private SpriteRenderer sr;
     private bool isInvisible;
-    private bool shouldShowOutline = false;
 
     void Start() {
         sr = GetComponent<SpriteRenderer>();
@@ -21,14 +20,29 @@ public class Dissolve : MonoBehaviour {
     }
 
     void Update() {
+        if (Input.GetKeyDown(KeyCode.S)) StartCoroutine(TwinklePlayerVisibility());
+    }
 
-        if (Input.GetKeyDown(KeyCode.S)) isInvisible = !isInvisible;
-        
-        material.SetFloat("_DissolveAmount", isInvisible ? 0f : 1f);
-        material.SetKeyword(shouldShowOutlineKeyword, isInvisible);
+    private IEnumerator TwinklePlayerVisibility()
+    {
+        isInvisible = !isInvisible;
         invisibilityBar.SetActive(isInvisible);
         PlayerMovement.Instance.IsRunning = !isInvisible;
-        
+
+        for (int i = 0; i < Random.Range(2, 4); i++)
+        {
+            material.SetFloat("_DissolveAmount", isInvisible ? 0f : 1f);
+            material.SetKeyword(shouldShowOutlineKeyword, isInvisible);
+            yield return new WaitForSeconds(Random.Range(0.01f, 0.1f));
+            
+            material.SetFloat("_DissolveAmount", isInvisible ? 1f : 0f);
+            material.SetKeyword(shouldShowOutlineKeyword, !isInvisible);
+            yield return new WaitForSeconds(Random.Range(0.01f, 0.2f));
+            
+            material.SetFloat("_DissolveAmount", isInvisible ? 0f : 1f);
+            material.SetKeyword(shouldShowOutlineKeyword, isInvisible);
+            yield return new WaitForSeconds(Random.Range(0.01f, 0.1f));
+        }
     }
 
     private IEnumerator LerpAlpha() {

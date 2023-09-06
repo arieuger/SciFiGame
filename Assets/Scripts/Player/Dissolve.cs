@@ -22,6 +22,11 @@ public class Dissolve : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.S)) StartCoroutine(TwinklePlayerVisibility());
     }
 
+    public void SwitchPlayerVisibility()
+    {
+        StartCoroutine(TwinklePlayerVisibility());
+    }
+
     private IEnumerator TwinklePlayerVisibility()
     {
         isInvisible = !isInvisible;

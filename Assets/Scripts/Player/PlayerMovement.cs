@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    
     [Header ("Movement and velocity")]
     // Movemento e velocidade
     [SerializeField] private float movementSpeed;

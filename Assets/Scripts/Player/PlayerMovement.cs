@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
@@ -9,14 +7,11 @@ public class PlayerMovement : MonoBehaviour
     [Header ("Movement and velocity")]
     // Movemento e velocidade
     [SerializeField] private float movementSpeed;
-    [SerializeField] private bool smoothActivated = false;
+    [SerializeField] private bool smoothActivated;
     [Range(0,0.3f)][SerializeField] private float movementSmooth;
     private Rigidbody2D rb;
     private float horizontalMovement;
-    public float HorizontalMovement {
-        get { return horizontalMovement; }
-        set { horizontalMovement = value; }
-    }
+    public float HorizontalMovement => horizontalMovement;
     private Vector3 velocity = Vector3.zero;
     private bool lookingRight = true;
     private bool isRunning = true;
@@ -36,18 +31,10 @@ public class PlayerMovement : MonoBehaviour
     
     private float defaultGravityScale;
     private float coyoteTimeCounter;
-
     private bool isGrounded;
-    public bool IsGrounded {
-        get { return isGrounded; }
-        set { isGrounded = value; }
-    }
-
-    private bool jump = false;
-    public bool Jump {
-        get { return jump; }
-        set { jump = value; }
-    }
+    public bool IsGrounded => isGrounded;
+    private bool jump;
+    public bool Jump => jump;
 
     // Dashing
     [Header ("Dashing")]
@@ -62,12 +49,18 @@ public class PlayerMovement : MonoBehaviour
     // Partículas
     [SerializeField] private ParticleSystem footstepsEffect;
     [SerializeField] private ParticleSystem jumpEffect;
+    [SerializeField] private ParticleSystem dashEffect;
     private ParticleSystem.EmissionModule footEmission;
     private ParticleSystem.MinMaxCurve initialFootEmissionRot;
 
     // Cámara e animacións
     private CinemachineVirtualCamera vCam;
     private Animator animator;
+    private static readonly int Movement = Animator.StringToHash("horizontalMovement");
+    private static readonly int VerticalMovement = Animator.StringToHash("verticalMovement");
+    private static readonly int Running = Animator.StringToHash("isRunning");
+    private static readonly int Grounded = Animator.StringToHash("isGrounded");
+    private static readonly int IsDashing = Animator.StringToHash("isDashing");
 
     // Singleton
     public static PlayerMovement Instance { get; private set; }
@@ -86,72 +79,62 @@ public class PlayerMovement : MonoBehaviour
         defaultGravityScale = rb.gravityScale;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (!isDashing)
-        {
-            horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
-        
-            if (Input.GetButtonDown("Jump")) jump = true;
-            if (Input.GetKeyDown(KeyCode.LeftShift) && canDash) StartCoroutine(Dash());
-        
-            if (isGrounded)
-            {
-                coyoteTimeCounter = coyoteTime;
-            }
-            else
-            {
-                coyoteTimeCounter -= Time.deltaTime;
-            }
-        }
-
         UpdateAnimations();
+        
+        if (isDashing) return;
+        
+        horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
+        
+        if (Input.GetButtonDown("Jump")) jump = true;
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash) StartCoroutine(Dash()); // TODO: Key to Button
+    
+        if (isGrounded) coyoteTimeCounter = coyoteTime;
+        else coyoteTimeCounter -= Time.deltaTime;
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         if (isDashing) return;
         // TODO: Health
         isGrounded = Physics2D.OverlapBox(groundController.position, dimensionBox, 0f, groundLayers);
         Move(horizontalMovement * Time.fixedDeltaTime);
-        CheckGravity();
+        CheckGravityOnCam();
     }
 
     private void UpdateAnimations() {
-        animator.SetFloat("horizontalMovement", Mathf.Abs(horizontalMovement));
-        animator.SetFloat("verticalMovement", isGrounded ? 0 : rb.velocity.y);
-        animator.SetBool("isRunning", isRunning && horizontalMovement != 0);
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetBool("isDashing", isDashing);
+        animator.SetFloat(Movement, Mathf.Abs(horizontalMovement));
+        animator.SetFloat(VerticalMovement, isGrounded ? 0 : rb.velocity.y);
+        animator.SetBool(Running, isRunning && horizontalMovement != 0);
+        animator.SetBool(Grounded, isGrounded);
+        animator.SetBool(IsDashing, isDashing);
     }
     
     private void Move(float moving) {
+        // Desplazamento
         Vector3 targetVelocity = new Vector2(moving, rb.velocity.y);
         rb.velocity = smoothActivated ? Vector3.SmoothDamp(rb.velocity, targetVelocity, ref velocity, movementSmooth) : targetVelocity;
 
-
+        // Xiro
         if (moving > 0 && !lookingRight) Turn();
         else if (moving < 0 && lookingRight) Turn();
 
         // efectos de partículas
-        if (moving != 0 && isGrounded && !isDashing) {
-            footEmission.rateOverTime = initialFootEmissionRot;
-        } else {
-            footEmission.rateOverTime = 0f;
-        }
+        if (moving != 0 && isGrounded && !isDashing) footEmission.rateOverTime = initialFootEmissionRot;
+        else footEmission.rateOverTime = 0f;
 
+        // Salto
         if (jump && (isGrounded || coyoteTimeCounter > 0f)) {
             isGrounded = false;
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
             coyoteTimeCounter = 0f;
             jumpEffect.Play();
         }
-
         jump = false;
     }
-    
-    public void Turn() {
+
+    private void Turn() {
         lookingRight = !lookingRight;
         Vector3 scale = transform.localScale;
         scale.x *= -1;
@@ -159,7 +142,7 @@ public class PlayerMovement : MonoBehaviour
         vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.x *= -1f;
     }
     
-    private void CheckGravity() {
+    private void CheckGravityOnCam() {
         if (rb.velocity.y < -0.1f) {
             rb.gravityScale = fallGravityScale;
             if (vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y > 0f)
@@ -169,16 +152,12 @@ public class PlayerMovement : MonoBehaviour
             vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y = Mathf.Abs(vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y);
         }
     }
-    
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(groundController.position, dimensionBox);
-    }
 
     private IEnumerator Dash()
     {
         canDash = false;
         isDashing = true;
+        dashEffect.Play();
         rb.gravityScale = 0f;
         rb.velocity = new(transform.localScale.x * dashingPower, 0f);
         
@@ -186,8 +165,16 @@ public class PlayerMovement : MonoBehaviour
 
         rb.gravityScale = defaultGravityScale;
         isDashing = false;
+        
+        yield return new WaitForSeconds(0.1f);
+        dashEffect.Stop();
 
         yield return new WaitForSeconds(dashingCooldown);
         canDash = true;
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(groundController.position, dimensionBox);
     }
 }

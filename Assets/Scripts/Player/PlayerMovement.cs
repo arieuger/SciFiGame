@@ -33,19 +33,30 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Vector3 dimensionBox;
     [SerializeField] private float fallGravityScale;
     [SerializeField] private float coyoteTime;
-
+    
     private float defaultGravityScale;
     private float coyoteTimeCounter;
+
     private bool isGrounded;
     public bool IsGrounded {
         get { return isGrounded; }
         set { isGrounded = value; }
     }
+
     private bool jump = false;
     public bool Jump {
         get { return jump; }
         set { jump = value; }
     }
+
+    // Dashing
+    [Header ("Dashing")]
+    [SerializeField] private float dashingPower = 24f;
+    [SerializeField] private float dashingTime = 0.2f;
+    [SerializeField] private float dashingCooldown = 1f;
+    
+    private bool canDash = true;
+    private bool isDashing;
 
     [Header ("Particle Effects")]
     // Partículas
@@ -78,21 +89,29 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
-        if (Input.GetButtonDown("Jump")) jump = true;
-        if (isGrounded)
+        if (!isDashing)
         {
-            coyoteTimeCounter = coyoteTime;
+            horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
+        
+            if (Input.GetButtonDown("Jump")) jump = true;
+            if (Input.GetKeyDown(KeyCode.LeftShift) && canDash) StartCoroutine(Dash());
+        
+            if (isGrounded)
+            {
+                coyoteTimeCounter = coyoteTime;
+            }
+            else
+            {
+                coyoteTimeCounter -= Time.deltaTime;
+            }
         }
-        else
-        {
-            coyoteTimeCounter -= Time.deltaTime;
-        }
+
         UpdateAnimations();
     }
 
     private void FixedUpdate()
     {
+        if (isDashing) return;
         // TODO: Health
         isGrounded = Physics2D.OverlapBox(groundController.position, dimensionBox, 0f, groundLayers);
         Move(horizontalMovement * Time.fixedDeltaTime);
@@ -115,7 +134,7 @@ public class PlayerMovement : MonoBehaviour
         else if (moving < 0 && lookingRight) Turn();
 
         // efectos de partículas
-        if (moving != 0 && isGrounded) {
+        if (moving != 0 && isGrounded && !isDashing) {
             footEmission.rateOverTime = initialFootEmissionRot;
         } else {
             footEmission.rateOverTime = 0f;
@@ -153,5 +172,21 @@ public class PlayerMovement : MonoBehaviour
     private void OnDrawGizmos() {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(groundController.position, dimensionBox);
+    }
+
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        isDashing = true;
+        rb.gravityScale = 0f;
+        rb.velocity = new(transform.localScale.x * dashingPower, 0f);
+        
+        yield return new WaitForSeconds(dashingTime);
+
+        rb.gravityScale = defaultGravityScale;
+        isDashing = false;
+
+        yield return new WaitForSeconds(dashingCooldown);
+        canDash = true;
     }
 }

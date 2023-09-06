@@ -6121,7 +6121,7 @@ MonoBehaviour:
   dimensionBox: {x: 0.6, y: 0.15, z: 0}
   fallGravityScale: 4.5
   coyoteTime: 0.075
-  dashingPower: 30
+  dashingPower: 25
   dashingTime: 0.1
   dashingCooldown: 1
   footstepsEffect: {fileID: 266232343}

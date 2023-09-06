@@ -123,6 +123,7 @@ public class PlayerMovement : MonoBehaviour
         animator.SetFloat("verticalMovement", isGrounded ? 0 : rb.velocity.y);
         animator.SetBool("isRunning", isRunning && horizontalMovement != 0);
         animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("isDashing", isDashing);
     }
     
     private void Move(float moving) {

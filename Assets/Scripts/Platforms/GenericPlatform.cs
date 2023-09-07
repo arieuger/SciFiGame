@@ -29,7 +29,7 @@ public class GenericPlatform : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Ufo"))
+        if (other.CompareTag("Ufo") && gameObject.activeSelf)
         {
             StartCoroutine(TwinkleChangingPlatform(true));
             bc.isTrigger = true;

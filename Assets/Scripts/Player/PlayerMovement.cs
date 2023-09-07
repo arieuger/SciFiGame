@@ -54,7 +54,13 @@ public class PlayerMovement : MonoBehaviour
     private ParticleSystem.MinMaxCurve initialFootEmissionRot;
 
     // Cámara e animacións
+    [Header ("Camera")]
+    [SerializeField] private float leftCamLimit = -10f;
     private CinemachineVirtualCamera vCam;
+    private CinemachineBrain cinemachineBrain;
+    private bool cinemachineBrainEnabled = true;
+    private CinemachineFramingTransposer cinemachineFramingTransposer;
+
     private Animator animator;
     private static readonly int Movement = Animator.StringToHash("horizontalMovement");
     private static readonly int VerticalMovement = Animator.StringToHash("verticalMovement");
@@ -74,6 +80,8 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         vCam = GameObject.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>();
+        cinemachineFramingTransposer = vCam.GetComponentInChildren<CinemachineFramingTransposer>();
+        cinemachineBrain = GameObject.Find("MainCamera").GetComponent<CinemachineBrain>();
         footEmission = footstepsEffect.emission;
         initialFootEmissionRot = footEmission.rateOverTime;
         defaultGravityScale = rb.gravityScale;
@@ -100,7 +108,7 @@ public class PlayerMovement : MonoBehaviour
         // TODO: Health
         isGrounded = Physics2D.OverlapBox(groundController.position, dimensionBox, 0f, groundLayers);
         Move(horizontalMovement * Time.fixedDeltaTime);
-        CheckGravityOnCam();
+        CheckLimitsOnCam();
     }
 
     private void UpdateAnimations() {
@@ -139,17 +147,28 @@ public class PlayerMovement : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
-        vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.x *= -1f;
+        cinemachineFramingTransposer.m_TrackedObjectOffset.x *= -1f;
     }
     
-    private void CheckGravityOnCam() {
+    private void CheckLimitsOnCam() {
+        leftCamLimit = -10f;
+        if (transform.position.x < leftCamLimit && cinemachineBrainEnabled)
+        {
+            cinemachineBrain.enabled = false;
+            cinemachineBrainEnabled = false;
+        } else if (transform.position.x >= leftCamLimit && !cinemachineBrainEnabled)
+        {
+            cinemachineBrain.enabled = true;
+            cinemachineBrainEnabled = true;
+        }
+        
         if (rb.velocity.y < -0.1f) {
             rb.gravityScale = fallGravityScale;
-            if (vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y > 0f)
-                vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y *= -1f;
+            if (cinemachineFramingTransposer.m_TrackedObjectOffset.y > 0f)
+                cinemachineFramingTransposer.m_TrackedObjectOffset.y *= -1f;
         } else {
             rb.gravityScale = defaultGravityScale;
-            vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y = Mathf.Abs(vCam.GetComponentInChildren<CinemachineFramingTransposer>().m_TrackedObjectOffset.y);
+            cinemachineFramingTransposer.m_TrackedObjectOffset.y = Mathf.Abs(cinemachineFramingTransposer.m_TrackedObjectOffset.y);
         }
     }
 

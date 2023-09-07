@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
@@ -18,7 +19,9 @@ public class PlayerMovement : MonoBehaviour
     public bool IsRunning { 
         get { return isRunning; } 
         set { isRunning = value; } 
-    } 
+    }
+
+    private bool isBeingAbducted;
     
     [Header ("Jump and groundcheck")]
     // Salto e suelo
@@ -91,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
     {
         UpdateAnimations();
         
-        if (isDashing) return;
+        if (isDashing || isBeingAbducted) return;
         
         horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
         
@@ -104,11 +107,19 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isDashing) return;
-        // TODO: Health
+        if (isDashing || isBeingAbducted) return;
+        // TODO: Health?
         isGrounded = Physics2D.OverlapBox(groundController.position, dimensionBox, 0f, groundLayers);
         Move(horizontalMovement * Time.fixedDeltaTime);
         CheckLimitsOnCam();
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Ufo"))
+        {
+            StartCoroutine(StartAbduction(other.gameObject.GetComponent<Abducting>()));
+        }
     }
 
     private void UpdateAnimations() {
@@ -190,6 +201,15 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(dashingCooldown);
         canDash = true;
+    }
+
+    private IEnumerator StartAbduction(Abducting abduct)
+    {
+        yield return new WaitForSeconds(0.2f);
+        
+        rb.velocity = Vector2.zero;
+        isBeingAbducted = true;
+        abduct.AbductPlayer(gameObject);
     }
 
     private void OnDrawGizmos() {

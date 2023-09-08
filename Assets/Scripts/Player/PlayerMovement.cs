@@ -61,7 +61,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float leftCamLimit = -10f;
     private CinemachineVirtualCamera vCam;
     private CinemachineBrain cinemachineBrain;
-    private bool cinemachineBrainEnabled = true;
     private CinemachineFramingTransposer cinemachineFramingTransposer;
 
     private Animator animator;
@@ -163,14 +162,12 @@ public class PlayerMovement : MonoBehaviour
     
     private void CheckLimitsOnCam() {
         leftCamLimit = -10f;
-        if (transform.position.x < leftCamLimit && cinemachineBrainEnabled)
+        if (transform.position.x < leftCamLimit && cinemachineBrain.enabled)
         {
             cinemachineBrain.enabled = false;
-            cinemachineBrainEnabled = false;
-        } else if (transform.position.x >= leftCamLimit && !cinemachineBrainEnabled)
+        } else if (transform.position.x >= leftCamLimit && !cinemachineBrain.enabled)
         {
             cinemachineBrain.enabled = true;
-            cinemachineBrainEnabled = true;
         }
         
         if (rb.velocity.y < -0.1f) {
@@ -209,7 +206,9 @@ public class PlayerMovement : MonoBehaviour
         
         rb.velocity = Vector2.zero;
         isBeingAbducted = true;
-        abduct.AbductPlayer(gameObject);
+        rb.gravityScale = 0;
+        cinemachineBrain.enabled = false;
+        abduct.AbductObject(gameObject.transform);
     }
 
     private void OnDrawGizmos() {

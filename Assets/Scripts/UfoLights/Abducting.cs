@@ -1,25 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Abducting : MonoBehaviour
 {
     [SerializeField] private Transform endAbductionPoint;
+    [SerializeField] private float speed = 1f;
     
-    // Start is called before the first frame update
-    void Start()
+    public void AbductObject(Transform abducted)
     {
-        
+        StartCoroutine(AbductionCo(abducted));
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator AbductionCo(Transform abducted)
     {
-        
-    }
+        while (abducted.position.y < endAbductionPoint.position.y)
+        {
+            abducted.position = Vector2.MoveTowards(abducted.position, endAbductionPoint.position, speed * Time.deltaTime);
+            yield return null;
+        }
 
-    public void AbductPlayer(GameObject goPlayer)
-    {
-        Debug.Log("Estás sendo abducidx");
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

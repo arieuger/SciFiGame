@@ -33,15 +33,16 @@ public class PlayerAbduction : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Ufo") && !PlayerInvisibility.Instance.IsInvisible)
-        {
+        if (!other.CompareTag("Ufo")) return;
+        
+        isInUfo = true;
+        if (!PlayerInvisibility.Instance.IsInvisible)
             StartCoroutine(StartAbductionCoroutine(other.gameObject.GetComponent<Abducting>()));
-        }
     }
     
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Ufo") && !PlayerInvisibility.Instance.IsInvisible)
+        if (other.CompareTag("Ufo"))
         {
             isInUfo = false;
         }

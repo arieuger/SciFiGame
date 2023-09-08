@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
@@ -64,7 +65,14 @@ public class PlayerInvisibility : MonoBehaviour {
 
     private void CheckShouldBeAbducted()
     {
-        // if (PlayerMovement.Instance.IsInUfo) PlayerMovement.Instance.StartAbduction();
+        if (!PlayerAbduction.Instance.IsInUfo) return;
+        
+        List<Collider2D> colliders = new List<Collider2D>();
+        rb.OverlapCollider(new ContactFilter2D().NoFilter(), colliders);
+        colliders.ForEach(c =>
+        {
+            if (c.CompareTag("Ufo")) PlayerAbduction.Instance.StartAbduction(c.GetComponent<Abducting>());
+        });
     }
 
     private IEnumerator LerpAlpha() {

@@ -20,11 +20,6 @@ public class PlayerMovement : MonoBehaviour
         get { return isRunning; } 
         set { isRunning = value; } 
     }
-
-    private bool isInUfo;
-    public bool IsInUfo => isInUfo;
-
-    private bool isBeingAbducted;
     
     [Header ("Jump and groundcheck")]
     // Salto e suelo
@@ -72,7 +67,6 @@ public class PlayerMovement : MonoBehaviour
     private static readonly int Running = Animator.StringToHash("isRunning");
     private static readonly int Grounded = Animator.StringToHash("isGrounded");
     private static readonly int IsDashing = Animator.StringToHash("isDashing");
-    private static readonly int Abduct = Animator.StringToHash("abduct");
 
     // Singleton
     public static PlayerMovement Instance { get; private set; }
@@ -98,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
     {
         UpdateAnimations();
         
-        if (isDashing || isBeingAbducted) return;
+        if (isDashing || PlayerAbduction.Instance.IsBeingAbducted) return;
         
         horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
         
@@ -111,28 +105,11 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isDashing || isBeingAbducted) return;
+        if (isDashing || PlayerAbduction.Instance.IsBeingAbducted) return;
         // TODO: Health?
         isGrounded = Physics2D.OverlapBox(groundController.position, dimensionBox, 0f, groundLayers);
         Move(horizontalMovement * Time.fixedDeltaTime);
         CheckLimitsOnCam();
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Ufo") && !PlayerInvisibility.Instance.IsInvisible)
-        {
-            isInUfo = true;
-            StartCoroutine(StartAbductionCoroutine(other.gameObject.GetComponent<Abducting>()));
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Ufo") && !PlayerInvisibility.Instance.IsInvisible)
-        {
-            isInUfo = false;
-        }
     }
 
     private void UpdateAnimations() {
@@ -212,23 +189,6 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(dashingCooldown);
         canDash = true;
-    }
-
-    private IEnumerator StartAbductionCoroutine(Abducting abduct)
-    {
-        yield return new WaitForSeconds(0.2f);
-
-        StartAbduction(abduct);
-    }
-
-    public void StartAbduction(Abducting abduct)
-    {
-        rb.velocity = Vector2.zero;
-        isBeingAbducted = true;
-        rb.gravityScale = 0;
-        cinemachineBrain.enabled = false;
-        animator.SetTrigger(Abduct);
-        abduct.AbductObject(gameObject.transform);
     }
 
     private void OnDrawGizmos() {

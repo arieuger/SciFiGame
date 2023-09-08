@@ -10402,7 +10402,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxTime: 15
-  playerDissolve: {fileID: 587532334}
+  playerPlayerInvisibility: {fileID: 587532334}
   originalColor: {r: 0.18039216, g: 0.3647059, b: 0.32156864, a: 1}
 --- !u!1 &467262546
 GameObject:
@@ -22077,10 +22077,6 @@ PrefabInstance:
     - target: {fileID: 1997779622780657616, guid: ecc8beb5e83452ed18e16a5b1ee56d25, type: 3}
       propertyPath: m_Target
       value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2389110497466271371, guid: ecc8beb5e83452ed18e16a5b1ee56d25, type: 3}
-      propertyPath: speed
-      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2782221777262358218, guid: ecc8beb5e83452ed18e16a5b1ee56d25, type: 3}
       propertyPath: m_LocalPosition.x

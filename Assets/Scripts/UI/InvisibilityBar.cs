@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class InvisibilityBar : MonoBehaviour {
 
     [SerializeField] private float maxTime = 15f;
-    [SerializeField] private Dissolve playerDissolve;
+    [FormerlySerializedAs("playerInvisibility")] [FormerlySerializedAs("playerDissolve")] [SerializeField] private PlayerInvisibility playerPlayerInvisibility;
     private float jumpTime = 1.5f;
 
     private Slider slider;
@@ -30,7 +31,7 @@ public class InvisibilityBar : MonoBehaviour {
             slider.value = timeRemaining / maxTime;
         } else if (timeRemaining <= 0) {
             gameObject.SetActive(false);
-            playerDissolve.SwitchPlayerVisibility();
+            playerPlayerInvisibility.SwitchPlayerVisibility();
         }
     }
 

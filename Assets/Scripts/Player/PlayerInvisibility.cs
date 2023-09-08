@@ -1,18 +1,30 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Random = UnityEngine.Random;
 
-public class Dissolve : MonoBehaviour {
+public class PlayerInvisibility : MonoBehaviour {
 
     [SerializeField] private GameObject invisibilityBar;
 
     private Material material;
     private LocalKeyword shouldShowOutlineKeyword;
     private SpriteRenderer sr;
+    private Rigidbody2D rb;
     private bool isInvisible;
+    public bool IsInvisible => isInvisible;
+    
+    public static PlayerInvisibility Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null && Instance != this) Destroy(this);
+        else Instance = this;
+    }
 
     void Start() {
         sr = GetComponent<SpriteRenderer>();
+        rb = GetComponent<Rigidbody2D>();
         material = sr.material;
         shouldShowOutlineKeyword = new LocalKeyword(material.shader, "_SHOULDSHOWOUTLINE");
         StartCoroutine(LerpAlpha());
@@ -32,6 +44,7 @@ public class Dissolve : MonoBehaviour {
         isInvisible = !isInvisible;
         invisibilityBar.SetActive(isInvisible);
         PlayerMovement.Instance.IsRunning = !isInvisible;
+        if (!isInvisible) CheckShouldBeAbducted();
 
         for (int i = 0; i < Random.Range(2, 4); i++)
         {
@@ -47,6 +60,11 @@ public class Dissolve : MonoBehaviour {
             material.SetKeyword(shouldShowOutlineKeyword, isInvisible);
             yield return new WaitForSeconds(Random.Range(0.01f, 0.1f));
         }
+    }
+
+    private void CheckShouldBeAbducted()
+    {
+        // if (PlayerMovement.Instance.IsInUfo) PlayerMovement.Instance.StartAbduction();
     }
 
     private IEnumerator LerpAlpha() {

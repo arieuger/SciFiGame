@@ -21,6 +21,9 @@ public class PlayerMovement : MonoBehaviour
         set { isRunning = value; } 
     }
 
+    private bool isInUfo;
+    public bool IsInUfo => isInUfo;
+
     private bool isBeingAbducted;
     
     [Header ("Jump and groundcheck")]
@@ -69,10 +72,12 @@ public class PlayerMovement : MonoBehaviour
     private static readonly int Running = Animator.StringToHash("isRunning");
     private static readonly int Grounded = Animator.StringToHash("isGrounded");
     private static readonly int IsDashing = Animator.StringToHash("isDashing");
+    private static readonly int Abduct = Animator.StringToHash("abduct");
 
     // Singleton
     public static PlayerMovement Instance { get; private set; }
-    private void Awake() {
+    private void Awake() 
+    {
         if (Instance != null && Instance != this) Destroy(this);
         else Instance = this;
     }
@@ -115,9 +120,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Ufo"))
+        if (other.CompareTag("Ufo") && !PlayerInvisibility.Instance.IsInvisible)
         {
-            StartCoroutine(StartAbduction(other.gameObject.GetComponent<Abducting>()));
+            isInUfo = true;
+            StartCoroutine(StartAbductionCoroutine(other.gameObject.GetComponent<Abducting>()));
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Ufo") && !PlayerInvisibility.Instance.IsInvisible)
+        {
+            isInUfo = false;
         }
     }
 
@@ -200,14 +214,20 @@ public class PlayerMovement : MonoBehaviour
         canDash = true;
     }
 
-    private IEnumerator StartAbduction(Abducting abduct)
+    private IEnumerator StartAbductionCoroutine(Abducting abduct)
     {
         yield return new WaitForSeconds(0.2f);
-        
+
+        StartAbduction(abduct);
+    }
+
+    public void StartAbduction(Abducting abduct)
+    {
         rb.velocity = Vector2.zero;
         isBeingAbducted = true;
         rb.gravityScale = 0;
         cinemachineBrain.enabled = false;
+        animator.SetTrigger(Abduct);
         abduct.AbductObject(gameObject.transform);
     }
 

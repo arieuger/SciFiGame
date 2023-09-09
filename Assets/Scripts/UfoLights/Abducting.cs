@@ -8,12 +8,12 @@ public class Abducting : MonoBehaviour
     [SerializeField] private Transform endAbductionPoint;
     [SerializeField] private float speed = 1f;
     
-    public void AbductObject(Transform abducted)
+    public void AbductObject(Transform abducted, bool shouldDestroy = false, bool shouldReload = true)
     {
-        StartCoroutine(AbductionCo(abducted));
+        StartCoroutine(AbductionCo(abducted, shouldDestroy, shouldReload));
     }
 
-    private IEnumerator AbductionCo(Transform abducted)
+    private IEnumerator AbductionCo(Transform abducted, bool shouldDestroy, bool shouldRelaod)
     {
         while (abducted.position.y < endAbductionPoint.position.y)
         {
@@ -21,7 +21,9 @@ public class Abducting : MonoBehaviour
             yield return null;
         }
 
+        if (shouldDestroy) Destroy(abducted.gameObject);
+        
         yield return new WaitForSeconds(1f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (shouldRelaod) SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

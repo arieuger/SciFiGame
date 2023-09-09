@@ -20,6 +20,14 @@ public class PlayerMovement : MonoBehaviour
         get { return isRunning; } 
         set { isRunning = value; } 
     }
+
+    private bool shouldMove = true;
+
+    public bool ShouldMove
+    {
+        get { return shouldMove;  }
+        set { shouldMove = value; }
+    }
     
     [Header ("Jump and groundcheck")]
     // Salto e suelo
@@ -93,10 +101,11 @@ public class PlayerMovement : MonoBehaviour
         UpdateAnimations();
         
         if (isDashing || PlayerAbduction.Instance.IsBeingAbducted) return;
+
+        if (shouldMove) horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
+        else horizontalMovement = 0;
         
-        horizontalMovement = Input.GetAxis("Horizontal") * movementSpeed * (isRunning ? 1.5f : 1f);
-        
-        if (Input.GetButtonDown("Jump")) jump = true;
+        if (Input.GetButtonDown("Jump") && shouldMove) jump = true;
         if (Input.GetKeyDown(KeyCode.LeftShift) && canDash) StartCoroutine(Dash()); // TODO: Key to Button
     
         if (isGrounded) coyoteTimeCounter = coyoteTime;

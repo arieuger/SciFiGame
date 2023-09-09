@@ -32,7 +32,7 @@ public class PlayerInvisibility : MonoBehaviour {
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.S) && !PlayerAbduction.Instance.IsBeingAbducted) StartCoroutine(TwinklePlayerVisibility());
+        if (Input.GetKeyDown(KeyCode.S) && PlayerMovement.Instance.ShouldMove && !PlayerAbduction.Instance.IsBeingAbducted) StartCoroutine(TwinklePlayerVisibility());
     }
 
     public void SwitchPlayerVisibility()

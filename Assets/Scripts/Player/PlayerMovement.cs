@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using Cinemachine;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -62,13 +60,6 @@ public class PlayerMovement : MonoBehaviour
     private ParticleSystem.EmissionModule footEmission;
     private ParticleSystem.MinMaxCurve initialFootEmissionRot;
 
-    // Cámara e animacións
-    [Header ("Camera")]
-    [SerializeField] private float leftCamLimit = -10f;
-    private CinemachineVirtualCamera vCam;
-    private CinemachineBrain cinemachineBrain;
-    private CinemachineFramingTransposer cinemachineFramingTransposer;
-
     private Animator animator;
     private static readonly int Movement = Animator.StringToHash("horizontalMovement");
     private static readonly int VerticalMovement = Animator.StringToHash("verticalMovement");
@@ -88,9 +79,6 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        vCam = GameObject.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>();
-        cinemachineFramingTransposer = vCam.GetComponentInChildren<CinemachineFramingTransposer>();
-        cinemachineBrain = GameObject.Find("MainCamera").GetComponent<CinemachineBrain>();
         footEmission = footstepsEffect.emission;
         initialFootEmissionRot = footEmission.rateOverTime;
         defaultGravityScale = rb.gravityScale;
@@ -118,7 +106,7 @@ public class PlayerMovement : MonoBehaviour
         // TODO: Health?
         isGrounded = Physics2D.OverlapBox(groundController.position, dimensionBox, 0f, groundLayers);
         Move(horizontalMovement * Time.fixedDeltaTime);
-        CheckLimitsOnCam();
+        CheckGravityScale();
     }
 
     private void UpdateAnimations() {
@@ -157,27 +145,12 @@ public class PlayerMovement : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
-        cinemachineFramingTransposer.m_TrackedObjectOffset.x *= -1f;
+        CameraFollow.Instance.TurnCamera();
     }
     
-    private void CheckLimitsOnCam() {
-        leftCamLimit = -10f;
-        if (transform.position.x < leftCamLimit && cinemachineBrain.enabled)
-        {
-            cinemachineBrain.enabled = false;
-        } else if (transform.position.x >= leftCamLimit && !cinemachineBrain.enabled)
-        {
-            cinemachineBrain.enabled = true;
-        }
-        
-        if (rb.velocity.y < -0.1f) {
-            rb.gravityScale = fallGravityScale;
-            if (cinemachineFramingTransposer.m_TrackedObjectOffset.y > 0f)
-                cinemachineFramingTransposer.m_TrackedObjectOffset.y *= -1f;
-        } else {
-            rb.gravityScale = defaultGravityScale;
-            cinemachineFramingTransposer.m_TrackedObjectOffset.y = Mathf.Abs(cinemachineFramingTransposer.m_TrackedObjectOffset.y);
-        }
+    private void CheckGravityScale()
+    {
+        rb.gravityScale = rb.velocity.y < -0.1f ? fallGravityScale : defaultGravityScale;
     }
 
     private IEnumerator Dash()

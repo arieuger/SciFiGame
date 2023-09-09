@@ -42,16 +42,12 @@ public class PlayerAbduction : MonoBehaviour
     
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Ufo"))
-        {
-            isInUfo = false;
-        }
+        if (other.CompareTag("Ufo")) isInUfo = false;
     }
     
     private IEnumerator StartAbductionCoroutine(Abducting abduct)
     {
         yield return new WaitForSeconds(0.2f);
-
         StartAbduction(abduct);
     }
 

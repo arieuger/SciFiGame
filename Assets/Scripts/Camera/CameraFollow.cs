@@ -52,7 +52,18 @@ public class CameraFollow : MonoBehaviour
     }
 
     private void CheckLimitsOnCam() {
+        
         if (transform.position.x < leftCamLimit && vCam.m_Follow != null) vCam.m_Follow = null;
         else if (transform.position.x >= leftCamLimit && vCam.m_Follow == null) vCam.m_Follow = followTransform;
+
+        // Rigidbody2D rb = followTransform.GetComponent<Rigidbody2D>();
+        // if (rb == null) return;
+        //
+        // if (rb.velocity.y < -0.1f) {
+        //     if (cinemachineFramingTransposer.m_TrackedObjectOffset.y > 0f)
+        //         cinemachineFramingTransposer.m_TrackedObjectOffset.y *= -1f;
+        // } else {
+        //     cinemachineFramingTransposer.m_TrackedObjectOffset.y = Mathf.Abs(cinemachineFramingTransposer.m_TrackedObjectOffset.y);
+        // }
     }
 }

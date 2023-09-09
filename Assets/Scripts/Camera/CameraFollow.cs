@@ -9,7 +9,6 @@ public class CameraFollow : MonoBehaviour
     
     [SerializeField] private float leftCamLimit = -10f;
     [SerializeField] private Transform playerTransform;
-    [SerializeField] private Transform catTransform;
 
     private Transform followTransform;
     
@@ -37,7 +36,7 @@ public class CameraFollow : MonoBehaviour
         transform.position = followTransform.position;
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         CheckLimitsOnCam();
     }
@@ -47,19 +46,13 @@ public class CameraFollow : MonoBehaviour
         cinemachineFramingTransposer.m_TrackedObjectOffset.x *= -1f;
     }
 
+    public void ChangeTarget(Transform target)
+    {
+        followTransform = target;
+    }
+
     private void CheckLimitsOnCam() {
-        
         if (transform.position.x < leftCamLimit && vCam.m_Follow != null) vCam.m_Follow = null;
         else if (transform.position.x >= leftCamLimit && vCam.m_Follow == null) vCam.m_Follow = followTransform;
-
-        Rigidbody2D rb = followTransform.GetComponent<Rigidbody2D>();
-        if (rb == null) return;
-        
-        if (rb.velocity.y < -0.1f) {
-            if (cinemachineFramingTransposer.m_TrackedObjectOffset.y > 0f)
-                cinemachineFramingTransposer.m_TrackedObjectOffset.y *= -1f;
-        } else {
-            cinemachineFramingTransposer.m_TrackedObjectOffset.y = Mathf.Abs(cinemachineFramingTransposer.m_TrackedObjectOffset.y);
-        }
     }
 }

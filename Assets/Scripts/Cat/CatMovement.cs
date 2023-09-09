@@ -47,6 +47,7 @@ public class CatMovement : MonoBehaviour
 
     private IEnumerator WalkAway()
     {
+        CameraFollow.Instance.ChangeTarget(gameObject.transform);
         animator.SetTrigger(Surprise);
         yield return new WaitForSeconds(0.3f);
         
@@ -69,12 +70,12 @@ public class CatMovement : MonoBehaviour
         rb.OverlapCollider(new ContactFilter2D().NoFilter(), colliders);
         colliders.Find(c => c.CompareTag("Ufo")).GetComponent<Abducting>().AbductObject(transform, true, false);
         rb.gravityScale = 0;
-
     }
 
     private void OnDestroy()
     {
         Destroy(gameObject.transform.parent.gameObject);
+        CameraFollow.Instance.ChangeTarget(PlayerMovement.Instance.transform);
         PlayerMovement.Instance.ShouldMove = true;
     }
 

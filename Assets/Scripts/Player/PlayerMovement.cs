@@ -20,7 +20,6 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private bool shouldMove = true;
-
     public bool ShouldMove
     {
         get { return shouldMove;  }
@@ -35,7 +34,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Vector3 dimensionBox;
     [SerializeField] private float fallGravityScale;
     [SerializeField] private float coyoteTime;
-    
     private float defaultGravityScale;
     private float coyoteTimeCounter;
     private bool isGrounded;
@@ -48,7 +46,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float dashingPower = 24f;
     [SerializeField] private float dashingTime = 0.2f;
     [SerializeField] private float dashingCooldown = 1f;
-    
     private bool canDash = true;
     private bool isDashing;
 
@@ -60,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
     private ParticleSystem.EmissionModule footEmission;
     private ParticleSystem.MinMaxCurve initialFootEmissionRot;
 
+    // Animacións
     private Animator animator;
     private static readonly int Movement = Animator.StringToHash("horizontalMovement");
     private static readonly int VerticalMovement = Animator.StringToHash("verticalMovement");
